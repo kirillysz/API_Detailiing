@@ -15,9 +15,16 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     pass
 
-class UserRead(UserBase):
+class UserRead(BaseModel):
     id: int
+    phone: str
+    email: Optional[EmailStr] = None
+
+    first_name: str
+    second_name: str
+    last_name: str
+    
     car: List[CarBase] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True

@@ -8,7 +8,10 @@ class Car(Base):
     id = Column(Integer, primary_key=True, index=True)
     mark = Column(String, nullable=True)
     model = Column(String, nullable=True)
-    owner_id = Column(Integer, ForeignKey("users.id"))
 
+    number = Column(String, nullable=True)
+    vin = Column(String, nullable=True)
+    
+    owner_id = Column(Integer, ForeignKey("users.id"))
     owner = relationship("User", back_populates="cars")
 

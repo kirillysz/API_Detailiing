@@ -15,5 +15,5 @@ class User(Base):
     second_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
     
-    cars = relationship("Car", back_populates="owner")
+    cars = relationship("Car", back_populates="owner", lazy="selectin")
 

@@ -3,6 +3,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import or_
+from sqlalchemy.orm import selectinload
 
 from app.models.user import User
 from app.schemas.user import UserRead, UserUpdate
@@ -10,7 +11,7 @@ from app.schemas.user import UserRead, UserUpdate
 class UserCRUD:
     @staticmethod
     async def check_existing(db: AsyncSession, user_data: dict) -> UserRead:
-        query = select(User).where(
+        query = select(User).options(selectinload(User.cars)).where(
             or_(
                 User.email == user_data.get("email"),
                 User.phone == user_data.get("phone")
@@ -19,12 +20,32 @@ class UserCRUD:
         result = await db.execute(query)
         existing_user = result.scalars().first()
 
-        return UserRead.model_validate(existing_user, from_attributes=True)
+        if existing_user is not None:
+            user_dict = {
+                "id": existing_user.id,
+                "phone": existing_user.phone,
+                "email": existing_user.email,
+                "first_name": existing_user.first_name,
+                "second_name": existing_user.second_name,
+                "last_name": existing_user.last_name,
+                "cars": [
+                    {
+                        "id": car.id,
+                        "mark": car.mark,
+                        "model": car.model,
+                        "owner_id": car.owner_id
+                    }
+                    for car in existing_user.cars
+                ]
+            }
+            return UserRead.model_validate(user_dict)
+        
+        return None
 
     @staticmethod
     async def create_user(db: AsyncSession, user_data: dict) -> UserRead:
         is_exists = await UserCRUD.check_existing(db, user_data)
-        if is_exists:
+        if is_exists is not None:
             raise HTTPException(status_code=409, detail="User already exists")
 
         new_user = User(**user_data)
@@ -46,7 +67,7 @@ class UserCRUD:
             setattr(user, key, value)
 
         await db.commit()
-        await db.refresh()
+        await db.refresh(user)
 
         return user
 

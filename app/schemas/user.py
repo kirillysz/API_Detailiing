@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional, List
 
 from app.schemas.car import CarRead
@@ -11,6 +11,8 @@ class UserBase(BaseModel):
     first_name: str
     second_name: str
     last_name: str
+
+    is_active: bool = False
     
 class UserCreate(UserBase):
     pass
@@ -27,8 +29,8 @@ class UserRead(BaseModel):
     
     cars: List[CarRead] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
 
 class UserUpdate(BaseModel):
     phone: Optional[str] = None

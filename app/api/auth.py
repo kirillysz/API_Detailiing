@@ -17,6 +17,7 @@ async def get_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncS
     user = await user_crud.get_user_by_email(db=db, email=form_data.username)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
+    
     if not verify_password(form_data.password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
     

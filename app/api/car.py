@@ -18,7 +18,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 car_crud = CarCRUD()
 user_crud = UserCRUD()
 
-
 @router.post("/add", response_model=CarRead)
 async def add(
     car_data: CarCreate, 
@@ -59,3 +58,4 @@ async def add(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An unexpected error occurred: {str(e)}"
         )
+    

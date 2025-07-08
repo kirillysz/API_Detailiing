@@ -27,10 +27,11 @@ class UserRead(BaseModel):
     second_name: str
     last_name: str
     
+    password_hash: Optional[str] = None
+
     cars: List[CarRead] = []
 
     model_config = ConfigDict(from_attributes=True)
-
 
 class UserUpdate(BaseModel):
     phone: Optional[str] = None

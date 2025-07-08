@@ -40,4 +40,4 @@ class CarCRUD:
         await db.commit()
         await db.refresh(new_car)
 
-        return CarRead.model_validate(car_data, from_attributes=True)
+        return CarRead.model_validate(new_car, from_attributes=True)

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, Field
 from typing import Optional, List
 
 from app.schemas.car import CarRead
@@ -41,4 +41,3 @@ class UserUpdate(BaseModel):
     first_name: Optional[str] = None
     second_name: Optional[str] = None
     last_name: Optional[str] = None
-

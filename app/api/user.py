@@ -78,7 +78,7 @@ async def update(
         updated_user = await user_crud.update_user(
             db=db, user_id=user_id, user_update=user_update
         )
-        return updated_user
+        return UserRead.model_validate(updated_user)
 
     except ValueError as err:
         raise HTTPException(

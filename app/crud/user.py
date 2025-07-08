@@ -60,17 +60,14 @@ class UserCRUD:
     async def update_user(db: AsyncSession, user_id: int, user_update: UserUpdate) -> UserRead:
         user = await UserCRUD.get_user_by_id(db, user_id)
         if not user:
-            return HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
         
         update_data = user_update.model_dump(exclude_unset=True)
         for key, value in update_data.items():
             setattr(user, key, value)
 
         await db.commit()
-        await db.refresh(user)
-
-        return user
-
+        return UserRead.model_validate(user)
 
     @staticmethod
     async def get_user_by_id(db: AsyncSession, user_id: int) -> UserRead:

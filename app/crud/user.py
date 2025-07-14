@@ -8,6 +8,8 @@ from sqlalchemy.orm import selectinload
 from app.models.user import User
 from app.schemas.user import UserRead, UserUpdate
 
+from app.core.security import hash_password
+
 class UserCRUD:
     @staticmethod
     async def check_existing(db: AsyncSession, user_data: dict) -> UserRead:
@@ -63,21 +65,29 @@ class UserCRUD:
             raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
         
         update_data = user_update.model_dump(exclude_unset=True)
-        for key, value in update_data.items():
-            setattr(user, key, value)
+        allowed_fields = {'phone', 'email', 'password_hash', 'first_name', 'second_name', 'last_name'}
+        
+        for field, value in update_data.items():
+            if field in allowed_fields:
+                if field == "password_hash":
+                    value = hash_password(value)
+
+                setattr(user, field, value)
 
         await db.commit()
+        await db.refresh(user)
+
         return UserRead.model_validate(user)
 
     @staticmethod
-    async def get_user_by_id(db: AsyncSession, user_id: int) -> UserRead:
+    async def get_user_by_id(db: AsyncSession, user_id: int):
         query = select(User).where(
             User.id == user_id
         )
         result = await db.execute(query)
         existing_user = result.scalars().first()
 
-        return UserRead.model_validate(existing_user, from_attributes=True)
+        return existing_user
 
     @staticmethod
     async def get_user_by_email(db: AsyncSession, email: str) -> UserRead:
